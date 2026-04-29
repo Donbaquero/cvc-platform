@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVC — Centro de Gestión Documental</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --surface2: #EFEDE8;
+    --border: rgba(60,52,40,0.12);
+    --border-strong: rgba(60,52,40,0.25);
+    --text: #1C1A16;
+    --text2: #6B6558;
+    --text3: #A09890;
+    --accent: #2A5C3F;
+    --accent-light: #E8F2EC;
+    --accent2: #C45C1A;
+    --accent2-light: #FBF0E8;
+    --danger: #B93535;
+    --danger-light: #FAEAEA;
+    --info: #1A4B8C;
+    --info-light: #E8EEF8;
+    --amber: #8C5C1A;
+    --amber-light: #FBF3E8;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  h1,h2,h3 { font-family: 'Fraunces', serif; font-weight: 600; }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    opacity: 0.6;
+  }
+  #login-screen::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: var(--accent2-light);
+    opacity: 0.5;
+  }
+  .login-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 420px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    position: relative; z-index: 1;
+  }
+  .login-logo {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 36px;
+  }
+  .login-logo-icon {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 20px; font-weight: 600;
+  }
+  .login-logo-text h1 { font-size: 22px; color: var(--text); line-height:1; }
+  .login-logo-text span { font-size: 12px; color: var(--text3); font-family: 'DM Sans', sans-serif; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    background: var(--bg); color: var(--text);
+    outline: none; transition: border 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.18s; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1e4530; }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #8f2525; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+  .hint-accounts { margin-top: 20px; background: var(--surface2); border-radius: var(--radius); padding: 14px; font-size: 12px; color: var(--text2); }
+  .hint-accounts b { color: var(--text); }
+  .error-msg { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* ── LAYOUT ── */
+  #app { display: none; min-height: 100vh; }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px; min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo-icon {
+    width: 34px; height: 34px; background: var(--accent);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Fraunces', serif; font-size: 16px;
+  }
+  .sidebar-logo h2 { font-size: 18px; color: var(--text); }
+  .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+  .nav-section-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 8px 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 500;
+    margin-bottom: 2px; transition: all 0.15s; user-select: none;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); }
+  .nav-item svg { flex-shrink: 0; }
+  .sidebar-user {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px; flex-shrink: 0;
+  }
+  .avatar-green { background: var(--accent-light); color: var(--accent); }
+  .avatar-orange { background: var(--accent2-light); color: var(--accent2); }
+  .sidebar-user-info { flex: 1; min-width: 0; }
+  .sidebar-user-info .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user-info .role-badge { font-size: 11px; color: var(--text3); }
+  .sidebar-logout { color: var(--text3); cursor: pointer; padding: 4px; border-radius: 6px; transition: color 0.15s; }
+  .sidebar-logout:hover { color: var(--danger); }
+
+  /* ── MAIN ── */
+  .main { margin-left: 240px; flex: 1; padding: 28px 32px; max-width: calc(100vw - 240px); }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-header h2 { font-size: 26px; color: var(--text); }
+  .page-header p { font-size: 13px; color: var(--text3); margin-top: 2px; font-family: 'DM Sans', sans-serif; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); padding: 18px 20px;
+  }
+  .stat-card .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 6px; }
+  .stat-card .value { font-size: 28px; font-family: 'Fraunces', serif; font-weight: 600; color: var(--text); }
+  .stat-card .sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* ── TABLES ── */
+  .card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-size: 15px; color: var(--text); }
+  .card-body { padding: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 10px 16px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  tbody td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  /* ── BADGES ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: var(--accent-light); color: var(--accent); }
+  .badge-orange { background: var(--accent2-light); color: var(--accent2); }
+  .badge-red { background: var(--danger-light); color: var(--danger); }
+  .badge-blue { background: var(--info-light); color: var(--info); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-gray { background: var(--surface2); color: var(--text2); }
+
+  /* ── SEARCH BAR ── */
+  .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+  .search-input-wrap { position: relative; flex: 1; max-width: 360px; }
+  .search-input-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); }
+  .search-input-wrap input { padding-left: 34px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 18px;
+    padding: 28px 32px; width: 460px; max-width: 95vw;
+    box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { font-size: 20px; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* ── UPLOAD AREA ── */
+  .upload-area {
+    border: 2px dashed var(--border-strong); border-radius: var(--radius-lg);
+    padding: 32px; text-align: center; cursor: pointer;
+    transition: all 0.2s; margin-bottom: 4px;
+  }
+  .upload-area:hover, .upload-area.drag { border-color: var(--accent); background: var(--accent-light); }
+  .upload-area svg { color: var(--text3); margin-bottom: 8px; }
+  .upload-area p { font-size: 13px; color: var(--text2); }
+  .upload-area span { font-size: 12px; color: var(--text3); }
+
+  /* ── DOC GRID ── */
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .doc-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); padding: 16px;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .doc-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+  .doc-icon {
+    width: 44px; height: 52px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 0.04em;
+  }
+  .doc-icon.pdf { background: #C83232; }
+  .doc-icon.docx { background: #1A5C9E; }
+  .doc-icon.xlsx { background: #1A7A3A; }
+  .doc-icon.pptx { background: #C85A1A; }
+  .doc-icon.txt { background: #6B6B6B; }
+  .doc-icon.img { background: #6B1AC8; }
+  .doc-card-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+  .doc-card-meta { font-size: 11px; color: var(--text3); }
+  .doc-card-actions { display: flex; gap: 6px; margin-top: auto; }
+
+  /* ── AUDIT LOG ── */
+  .audit-row td:first-child { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .action-pill { display: inline-flex; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .action-login { background: var(--info-light); color: var(--info); }
+  .action-upload { background: var(--accent-light); color: var(--accent); }
+  .action-download { background: var(--amber-light); color: var(--amber); }
+  .action-delete { background: var(--danger-light); color: var(--danger); }
+  .action-create { background: var(--accent2-light); color: var(--accent2); }
+  .action-update { background: var(--surface2); color: var(--text2); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--text); color: #fff;
+    padding: 12px 20px; border-radius: var(--radius);
+    font-size: 13px; z-index: 9999;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.3s; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--surface2); border-radius: 20px; font-size: 12px; color: var(--text2); cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+  .chip:hover, .chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } .main { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">C</div>
+      <div class="login-logo-text">
+        <h1>CVC</h1>
+        <span>Centro de Gestión Documental</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Correo electrónico</label>
+      <input type="email" id="login-email" placeholder="usuario@cvc.gov.co" value="admin@cvc.gov.co">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" value="admin123">
+    </div>
+    <div class="error-msg" id="login-error">Credenciales incorrectas. Intenta de nuevo.</div>
+    <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="doLogin()">Ingresar</button>
+    <div class="hint-accounts">
+      <b>Cuentas de demo:</b><br>
+      Admin: <b>admin@cvc.gov.co</b> / <b>admin123</b><br>
+      Usuario: <b>juan@cvc.gov.co</b> / <b>user123</b>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <h2>CVC</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Inicio
+        </div>
+        <div class="nav-item" onclick="showPage('documents', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Documentos
+        </div>
+        <div class="nav-item" onclick="showPage('categories', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Categorías
+        </div>
+        <div class="nav-section-label admin-only" id="nav-admin-label">Administración</div>
+        <div class="nav-item admin-only" id="nav-users" onclick="showPage('users', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Usuarios
+        </div>
+        <div class="nav-item admin-only" id="nav-audit" onclick="showPage('audit', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Auditoría
+        </div>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar avatar-green" id="sb-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="name" id="sb-name">Admin</div>
+          <div class="role-badge" id="sb-role">Administrador</div>
+        </div>
+        <div class="sidebar-logout" title="Cerrar sesión" onclick="doLogout()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <h2 id="dash-greeting">Bienvenido</h2>
+            <p>Resumen del sistema documental</p>
+          </div>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><h3>Documentos recientes</h3></div>
+            <div class="card-body" id="recent-docs"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Actividad reciente</h3></div>
+            <div class="card-body" id="recent-activity"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DOCUMENTOS ── -->
+      <div class="page" id="page-documents">
+        <div class="page-header">
+          <div><h2>Documentos</h2><p>Gestión de archivos del sistema</p></div>
+          <button class="btn btn-primary" onclick="openUploadModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Subir documento
+          </button>
+        </div>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="doc-search" placeholder="Buscar documentos…" oninput="renderDocuments()">
+          </div>
+          <select id="doc-filter-cat" onchange="renderDocuments()" style="max-width:180px">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
+        <div class="chips-row" id="doc-chips"></div>
+        <div class="doc-grid" id="doc-grid"></div>
+      </div>
+
+      <!-- ── CATEGORÍAS ── -->
+      <div class="page" id="page-categories">
+        <div class="page-header">
+          <div><h2>Categorías</h2><p>Organización de documentos</p></div>
+          <button class="btn btn-primary admin-only" onclick="openCatModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nueva categoría
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Nombre</th><th>Descripción</th><th>Documentos</th><th>Creada</th><th>Acciones</th></tr></thead>
+              <tbody id="cat-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── USUARIOS ── -->
+      <div class="page" id="page-users">
+        <div class="page-header">
+          <div><h2>Usuarios</h2><p>Control de acceso y roles</p></div>
+          <button class="btn btn-primary" onclick="openUserModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo usuario
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AUDITORÍA ── -->
+      <div class="page" id="page-audit">
+        <div class="page-header">
+          <div><h2>Auditoría</h2><p>Historial de acciones del sistema</p></div>
+        </div>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="audit-search" placeholder="Buscar en historial…" oninput="renderAudit()">
+          </div>
+          <select id="audit-filter" onchange="renderAudit()" style="max-width:180px">
+            <option value="">Todas las acciones</option>
+            <option value="LOGIN">Login</option>
+            <option value="UPLOAD">Subida</option>
+            <option value="DOWNLOAD">Descarga</option>
+            <option value="DELETE">Eliminación</option>
+            <option value="CREATE">Creación</option>
+            <option value="UPDATE">Actualización</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th><th>IP</th></tr></thead>
+              <tbody id="audit-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══════ MODALS ══════ -->
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal">
+    <h3>Subir documento</h3>
+    <div class="upload-area" id="drop-area" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+      <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <p>Arrastra archivos aquí o <b style="color:var(--accent);cursor:pointer" onclick="document.getElementById('file-input').click()">selecciona</b></p>
+      <span>PDF, DOCX, XLSX, PPTX, TXT, imágenes — máx. 50MB</span>
+      <input type="file" id="file-input" style="display:none" multiple onchange="handleFileSelect(event)">
+    </div>
+    <div id="file-preview" style="margin:10px 0"></div>
+    <div class="form-group" style="margin-top:14px">
+      <label>Título del documento</label>
+      <input type="text" id="up-title" placeholder="Nombre descriptivo…">
+    </div>
+    <div class="form-group">
+      <label>Categoría</label>
+      <select id="up-cat"></select>
+    </div>
+    <div class="form-group">
+      <label>Descripción (opcional)</label>
+      <textarea id="up-desc" rows="2" placeholder="Breve descripción del contenido…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-upload')">Cancelar</button>
+      <button class="btn btn-primary" onclick="doUpload()">Subir documento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="modal-cat">
+  <div class="modal">
+    <h3 id="cat-modal-title">Nueva categoría</h3>
+    <div class="form-group">
+      <label>Nombre</label>
+      <input type="text" id="cat-name" placeholder="Ej: Informes técnicos">
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea id="cat-desc" rows="2" placeholder="Descripción de la categoría…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Color</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="color-picker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Cancelar</button>
+      <button class="btn btn-primary" id="cat-save-btn" onclick="saveCat()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <h3 id="user-modal-title">Nuevo usuario</h3>
+    <div class="two-col">
+      <div class="form-group"><label>Nombre</label><input type="text" id="u-name" placeholder="Nombre completo"></div>
+      <div class="form-group"><label>Correo</label><input type="email" id="u-email" placeholder="correo@cvc.gov.co"></div>
+    </div>
+    <div class="two-col">
+      <div class="form-group"><label>Contraseña</label><input type="password" id="u-pass" placeholder="Mínimo 8 caracteres"></div>
+      <div class="form-group"><label>Rol</label>
+        <select id="u-role">
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Estado</label>
+      <select id="u-status"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-primary" id="user-save-btn" onclick="saveUser()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Doc View Modal -->
+<div class="modal-overlay" id="modal-doc-view">
+  <div class="modal" style="width:500px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div class="doc-icon pdf" id="view-icon" style="width:48px;height:56px;font-size:12px"></div>
+      <div>
+        <h3 id="view-title" style="font-size:17px"></h3>
+        <p id="view-meta" style="font-size:12px;color:var(--text3);margin-top:3px"></p>
+      </div>
+    </div>
+    <table style="font-size:13px;width:100%">
+      <tr><td style="color:var(--text3);padding:5px 0;width:110px">Categoría</td><td id="view-cat"></td></tr>
+      <tr><td style="color:var(--text3);padding:5px 0">Subido por</td><td id="view-by"></td></tr>
+      <tr><td style="color:var(--text3);padding:5px 0">Fecha</td><td id="view-date"></td></tr>
+      <tr><td style="color:var(--text3);padding:5px 0">Tamaño</td><td id="view-size"></td></tr>
+      <tr><td style="color:var(--text3);padding:5px 0">Descripción</td><td id="view-desc"></td></tr>
+    </table>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-doc-view')">Cerrar</button>
+      <button class="btn btn-primary" id="view-download-btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar
+      </button>
+      <button class="btn btn-danger btn-sm admin-only" id="view-delete-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const COLORS = ['#2A5C3F','#C45C1A','#1A4B8C','#8C1A5C','#5C1A8C','#8C8C1A'];
+const COLOR_NAMES = ['verde','naranja','azul','rosa','morado','amarillo'];
+
+let state = {
+  currentUser: null,
+  users: [
+    { id:1, name:'Ana Rodríguez', email:'admin@cvc.gov.co', pass: btoa('admin123'), role:'admin', status:'activo', lastLogin: new Date(Date.now()-3600000).toISOString() },
+    { id:2, name:'Juan Pérez', email:'juan@cvc.gov.co', pass: btoa('user123'), role:'usuario', status:'activo', lastLogin: new Date(Date.now()-86400000).toISOString() },
+    { id:3, name:'María López', email:'maria@cvc.gov.co', pass: btoa('user456'), role:'usuario', status:'inactivo', lastLogin: new Date(Date.now()-604800000).toISOString() },
+  ],
+  categories: [
+    { id:1, name:'Informes Técnicos', desc:'Informes de análisis y estudios técnicos', color:'#2A5C3F', created: '2024-01-15' },
+    { id:2, name:'Resoluciones', desc:'Actos administrativos y resoluciones oficiales', color:'#1A4B8C', created: '2024-01-15' },
+    { id:3, name:'Contratos', desc:'Contratos y convenios institucionales', color:'#C45C1A', created: '2024-02-01' },
+    { id:4, name:'Actas', desc:'Actas de reuniones y comités', color:'#8C1A5C', created: '2024-02-10' },
+  ],
+  documents: [
+    { id:1, title:'Informe Calidad del Agua 2024', ext:'pdf', catId:1, uploadedBy:1, uploadedByName:'Ana Rodríguez', date:'2024-11-10', size:'2.4 MB', desc:'Análisis semestral de calidad hídrica cuencas del Cauca' },
+    { id:2, title:'Resolución 0842 Áreas Protegidas', ext:'pdf', catId:2, uploadedBy:1, uploadedByName:'Ana Rodríguez', date:'2024-10-28', size:'540 KB', desc:'Declaración de nuevas áreas de conservación ambiental' },
+    { id:3, title:'Contrato Consultoría Biodiversidad', ext:'docx', catId:3, uploadedBy:2, uploadedByName:'Juan Pérez', date:'2024-10-15', size:'1.1 MB', desc:'Contrato de consultoría para inventario de flora y fauna' },
+    { id:4, title:'Acta Comité Directivo Nov 2024', ext:'docx', catId:4, uploadedBy:2, uploadedByName:'Juan Pérez', date:'2024-11-05', size:'380 KB', desc:'Acta de sesión ordinaria del comité directivo' },
+    { id:5, title:'Plan de Manejo Cuenca Cauca', ext:'xlsx', catId:1, uploadedBy:1, uploadedByName:'Ana Rodríguez', date:'2024-09-20', size:'5.2 MB', desc:'Datos de monitoreo y plan de manejo integrado' },
+    { id:6, title:'Presentación Gestión Ambiental', ext:'pptx', catId:1, uploadedBy:2, uploadedByName:'Juan Pérez', date:'2024-11-01', size:'8.7 MB', desc:'Presentación indicadores gestión ambiental CVC 2024' },
+  ],
+  audit: [
+    { id:1, ts: new Date(Date.now()-600000).toISOString(), user:'Ana Rodríguez', action:'LOGIN', detail:'Inicio de sesión exitoso', ip:'192.168.1.10' },
+    { id:2, ts: new Date(Date.now()-3000000).toISOString(), user:'Juan Pérez', action:'DOWNLOAD', detail:'Descarga: Informe Calidad del Agua 2024', ip:'192.168.1.22' },
+    { id:3, ts: new Date(Date.now()-7200000).toISOString(), user:'Ana Rodríguez', action:'UPLOAD', detail:'Carga: Presentación Gestión Ambiental', ip:'192.168.1.10' },
+    { id:4, ts: new Date(Date.now()-86400000).toISOString(), user:'Juan Pérez', action:'LOGIN', detail:'Inicio de sesión exitoso', ip:'192.168.1.22' },
+    { id:5, ts: new Date(Date.now()-172800000).toISOString(), user:'Ana Rodríguez', action:'CREATE', detail:'Nueva categoría: Actas', ip:'192.168.1.10' },
+  ],
+  nextId: { user:4, cat:5, doc:7, audit:6 },
+  editingCat: null,
+  editingUser: null,
+  viewingDoc: null,
+  uploadFiles: [],
+};
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const user = state.users.find(u => u.email === email && u.pass === btoa(pass) && u.status === 'activo');
+  if (!user) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  state.currentUser = user;
+  user.lastLogin = new Date().toISOString();
+  addAudit('LOGIN', 'Inicio de sesión exitoso');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setupUI();
+  showPage('dashboard', document.querySelector('.nav-item.active'));
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin();
+});
+
+function doLogout() {
+  addAudit('LOGIN', 'Cierre de sesión');
+  state.currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+//  SETUP
+// ══════════════════════════════════════════════
+function setupUI() {
+  const u = state.currentUser;
+  document.getElementById('sb-name').textContent = u.name;
+  document.getElementById('sb-role').textContent = u.role === 'admin' ? 'Administrador' : 'Usuario';
+  document.getElementById('sb-avatar').textContent = u.name.split(' ').map(x=>x[0]).join('').slice(0,2);
+  document.getElementById('sb-avatar').className = 'avatar ' + (u.role === 'admin' ? 'avatar-green' : 'avatar-orange');
+  const adminEls = document.querySelectorAll('.admin-only');
+  adminEls.forEach(el => el.style.display = u.role === 'admin' ? '' : 'none');
+  populateCatSelects();
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(name, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'documents') renderDocuments();
+  if (name === 'categories') renderCategories();
+  if (name === 'users') renderUsers();
+  if (name === 'audit') renderAudit();
+}
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const u = state.currentUser;
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+  document.getElementById('dash-greeting').textContent = `${greet}, ${u.name.split(' ')[0]}`;
+
+  const stats = [
+    { label: 'Documentos', value: state.documents.length, sub: 'en el sistema' },
+    { label: 'Categorías', value: state.categories.length, sub: 'activas' },
+    { label: 'Usuarios', value: state.users.filter(x=>x.status==='activo').length, sub: 'activos' },
+    { label: 'Acciones hoy', value: state.audit.filter(a => a.ts.startsWith(new Date().toISOString().slice(0,10))).length, sub: 'registradas' },
+  ];
+  document.getElementById('stats-grid').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="label">${s.label}</div>
+      <div class="value">${s.value}</div>
+      <div class="sub">${s.sub}</div>
+    </div>`).join('');
+
+  const recentDocs = [...state.documents].slice(-4).reverse();
+  document.getElementById('recent-docs').innerHTML = `<table>
+    <tbody>${recentDocs.map(d => `<tr>
+      <td><div class="doc-icon ${d.ext}" style="width:28px;height:32px;font-size:9px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700">${d.ext.toUpperCase()}</div></td>
+      <td style="font-size:13px">${d.title}</td>
+      <td><span class="badge badge-gray">${getCatName(d.catId)}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+
+  const recent = [...state.audit].slice(-5).reverse();
+  document.getElementById('recent-activity').innerHTML = `<table>
+    <tbody>${recent.map(a => `<tr>
+      <td style="font-size:12px;color:var(--text3)">${fmtDate(a.ts)}</td>
+      <td style="font-size:13px">${a.user.split(' ')[0]}</td>
+      <td><span class="action-pill action-${a.action.toLowerCase()}">${a.action}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════
+//  DOCUMENTS
+// ══════════════════════════════════════════════
+function renderDocuments() {
+  const query = (document.getElementById('doc-search')?.value || '').toLowerCase();
+  const catFilter = document.getElementById('doc-filter-cat')?.value || '';
+  
+  // chips
+  const chips = document.getElementById('doc-chips');
+  chips.innerHTML = `<span class="chip active" data-cat="" onclick="setDocCatFilter(this, '')">Todos (${state.documents.length})</span>` +
+    state.categories.map(c => {
+      const count = state.documents.filter(d => d.catId === c.id).length;
+      return `<span class="chip" data-cat="${c.id}" onclick="setDocCatFilter(this, '${c.id}')">${c.name} (${count})</span>`;
+    }).join('');
+  // sync chip active state
+  chips.querySelectorAll('.chip').forEach(ch => {
+    ch.classList.toggle('active', ch.dataset.cat === catFilter);
+  });
+
+  let docs = state.documents.filter(d => {
+    const matchQ = !query || d.title.toLowerCase().includes(query) || d.desc.toLowerCase().includes(query);
+    const matchC = !catFilter || d.catId == catFilter;
+    return matchQ && matchC;
+  });
+
+  const isAdmin = state.currentUser.role === 'admin';
+  const grid = document.getElementById('doc-grid');
+  if (!docs.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <p>No se encontraron documentos</p></div>`;
+    return;
+  }
+  grid.innerHTML = docs.map(d => `
+    <div class="doc-card" onclick="viewDoc(${d.id})">
+      <div class="doc-icon ${d.ext}">${d.ext.toUpperCase()}</div>
+      <div class="doc-card-name">${d.title}</div>
+      <div class="doc-card-meta">${getCatName(d.catId)} · ${d.size}</div>
+      <div class="doc-card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();downloadDoc(${d.id})">Descargar</button>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteDoc(${d.id})">✕</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function setDocCatFilter(el, val) {
+  document.getElementById('doc-filter-cat').value = val;
+  renderDocuments();
+}
+
+function viewDoc(id) {
+  const doc = state.documents.find(d => d.id === id);
+  if (!doc) return;
+  state.viewingDoc = doc;
+  document.getElementById('view-icon').textContent = doc.ext.toUpperCase();
+  document.getElementById('view-icon').className = 'doc-icon ' + doc.ext;
+  document.getElementById('view-title').textContent = doc.title;
+  document.getElementById('view-meta').textContent = doc.ext.toUpperCase() + ' · ' + doc.size;
+  document.getElementById('view-cat').textContent = getCatName(doc.catId);
+  document.getElementById('view-by').textContent = doc.uploadedByName;
+  document.getElementById('view-date').textContent = doc.date;
+  document.getElementById('view-size').textContent = doc.size;
+  document.getElementById('view-desc').textContent = doc.desc || '—';
+  document.getElementById('view-download-btn').onclick = () => downloadDoc(id);
+  document.getElementById('view-delete-btn').onclick = () => { closeModal('modal-doc-view'); deleteDoc(id); };
+  const isAdmin = state.currentUser.role === 'admin';
+  document.getElementById('view-delete-btn').style.display = isAdmin ? '' : 'none';
+  openModal('modal-doc-view');
+}
+
+function downloadDoc(id) {
+  const doc = state.documents.find(d => d.id === id);
+  if (!doc) return;
+  addAudit('DOWNLOAD', `Descarga: ${doc.title}`);
+  toast(`Descargando "${doc.title}"…`);
+  closeModal('modal-doc-view');
+}
+
+function deleteDoc(id) {
+  if (!confirm('¿Eliminar este documento?')) return;
+  const doc = state.documents.find(d => d.id === id);
+  addAudit('DELETE', `Eliminación: ${doc.title}`);
+  state.documents = state.documents.filter(d => d.id !== id);
+  toast('Documento eliminado');
+  renderDocuments();
+}
+
+function openUploadModal() {
+  state.uploadFiles = [];
+  document.getElementById('up-title').value = '';
+  document.getElementById('up-desc').value = '';
+  document.getElementById('file-preview').innerHTML = '';
+  openModal('modal-upload');
+}
+
+function handleFileSelect(e) {
+  state.uploadFiles = Array.from(e.target.files);
+  showFilePreviews();
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-area').classList.remove('drag');
+  state.uploadFiles = Array.from(e.dataTransfer.files);
+  showFilePreviews();
+}
+function showFilePreviews() {
+  document.getElementById('file-preview').innerHTML = state.uploadFiles.map(f =>
+    `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;margin-bottom:4px;font-size:12px">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+      <span>${f.name}</span><span style="color:var(--text3)">${(f.size/1024/1024).toFixed(2)} MB</span>
+    </div>`).join('');
+  if (state.uploadFiles.length > 0) {
+    const name = state.uploadFiles[0].name.replace(/\.[^.]+$/, '');
+    document.getElementById('up-title').value = name;
+  }
+}
+
+function doUpload() {
+  const title = document.getElementById('up-title').value.trim();
+  const catId = parseInt(document.getElementById('up-cat').value);
+  const desc = document.getElementById('up-desc').value.trim();
+  if (!title) { toast('Ingresa un título para el documento', true); return; }
+  if (!catId) { toast('Selecciona una categoría', true); return; }
+
+  let ext = 'pdf';
+  let size = '1.2 MB';
+  if (state.uploadFiles.length > 0) {
+    const f = state.uploadFiles[0];
+    ext = f.name.split('.').pop().toLowerCase() || 'txt';
+    const validExts = ['pdf','docx','xlsx','pptx','txt','img','png','jpg'];
+    if (!validExts.includes(ext)) ext = 'txt';
+    if (['png','jpg','jpeg','gif','webp'].includes(ext)) ext = 'img';
+    size = (f.size/1024/1024).toFixed(1) + ' MB';
+  }
+
+  const doc = {
+    id: state.nextId.doc++,
+    title, ext, catId,
+    uploadedBy: state.currentUser.id,
+    uploadedByName: state.currentUser.name,
+    date: new Date().toISOString().slice(0,10),
+    size, desc
+  };
+  state.documents.push(doc);
+  addAudit('UPLOAD', `Carga: ${title}`);
+  closeModal('modal-upload');
+  toast('Documento subido correctamente');
+  renderDocuments();
+}
+
+// ══════════════════════════════════════════════
+//  CATEGORIES
+// ══════════════════════════════════════════════
+function renderCategories() {
+  const isAdmin = state.currentUser.role === 'admin';
+  const tbody = document.getElementById('cat-tbody');
+  if (!state.categories.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>No hay categorías</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = state.categories.map(c => {
+    const count = state.documents.filter(d => d.catId === c.id).length;
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:12px;height:12px;border-radius:50%;background:${c.color};display:inline-block"></span>
+          <b style="font-size:13px">${c.name}</b>
+        </div>
+      </td>
+      <td style="color:var(--text2)">${c.desc}</td>
+      <td><span class="badge badge-gray">${count} doc${count !== 1 ? 's' : ''}</span></td>
+      <td style="color:var(--text3)">${c.created}</td>
+      <td>
+        ${isAdmin ? `<button class="btn btn-secondary btn-sm" onclick="editCat(${c.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteCat(${c.id})">Eliminar</button>` : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCatModal(editing=false) {
+  if (!editing) {
+    state.editingCat = null;
+    document.getElementById('cat-modal-title').textContent = 'Nueva categoría';
+    document.getElementById('cat-name').value = '';
+    document.getElementById('cat-desc').value = '';
+  }
+  document.getElementById('color-picker').innerHTML = COLORS.map((c,i) =>
+    `<div onclick="selectColor(this,'${c}')" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent;transition:border 0.15s" data-color="${c}" title="${COLOR_NAMES[i]}"></div>`
+  ).join('');
+  openModal('modal-cat');
+}
+
+function editCat(id) {
+  const c = state.categories.find(x => x.id === id);
+  state.editingCat = id;
+  document.getElementById('cat-modal-title').textContent = 'Editar categoría';
+  document.getElementById('cat-name').value = c.name;
+  document.getElementById('cat-desc').value = c.desc;
+  openCatModal(true);
+  setTimeout(() => {
+    const el = document.querySelector(`[data-color="${c.color}"]`);
+    if (el) el.style.border = '3px solid var(--text)';
+  }, 50);
+}
+
+function selectColor(el, color) {
+  document.querySelectorAll('#color-picker div').forEach(d => d.style.border = '3px solid transparent');
+  el.style.border = '3px solid var(--text)';
+}
+
+function saveCat() {
+  const name = document.getElementById('cat-name').value.trim();
+  const desc = document.getElementById('cat-desc').value.trim();
+  const colorEl = document.querySelector('#color-picker [style*="var(--text)"]');
+  const color = colorEl ? colorEl.dataset.color : COLORS[0];
+  if (!name) { toast('El nombre es obligatorio', true); return; }
+
+  if (state.editingCat) {
+    const c = state.categories.find(x => x.id === state.editingCat);
+    c.name = name; c.desc = desc; c.color = color;
+    addAudit('UPDATE', `Actualización categoría: ${name}`);
+    toast('Categoría actualizada');
+  } else {
+    state.categories.push({ id: state.nextId.cat++, name, desc, color, created: new Date().toISOString().slice(0,10) });
+    addAudit('CREATE', `Nueva categoría: ${name}`);
+    toast('Categoría creada');
+  }
+  closeModal('modal-cat');
+  renderCategories();
+  populateCatSelects();
+}
+
+function deleteCat(id) {
+  const c = state.categories.find(x => x.id === id);
+  const docCount = state.documents.filter(d => d.catId === id).length;
+  if (docCount > 0) { toast(`No se puede eliminar: tiene ${docCount} documento(s)`, true); return; }
+  if (!confirm(`¿Eliminar la categoría "${c.name}"?`)) return;
+  state.categories = state.categories.filter(x => x.id !== id);
+  addAudit('DELETE', `Eliminación categoría: ${c.name}`);
+  toast('Categoría eliminada');
+  renderCategories();
+  populateCatSelects();
+}
+
+// ══════════════════════════════════════════════
+//  USERS
+// ══════════════════════════════════════════════
+function renderUsers() {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = state.users.map(u => `<tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar ${u.role === 'admin' ? 'avatar-green' : 'avatar-orange'}" style="width:28px;height:28px;font-size:11px">${u.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
+        <b style="font-size:13px">${u.name}</b>
+      </div>
+    </td>
+    <td style="color:var(--text2)">${u.email}</td>
+    <td><span class="badge ${u.role === 'admin' ? 'badge-green' : 'badge-blue'}">${u.role === 'admin' ? 'Admin' : 'Usuario'}</span></td>
+    <td><span class="badge ${u.status === 'activo' ? 'badge-green' : 'badge-red'}">${u.status}</span></td>
+    <td style="color:var(--text3);font-size:12px">${u.lastLogin ? fmtDate(u.lastLogin) : '—'}</td>
+    <td>
+      <button class="btn btn-secondary btn-sm" onclick="editUser(${u.id})">Editar</button>
+      ${u.id !== state.currentUser.id ? `<button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteUser(${u.id})">Eliminar</button>` : ''}
+    </td>
+  </tr>`).join('');
+}
+
+function openUserModal() {
+  state.editingUser = null;
+  document.getElementById('user-modal-title').textContent = 'Nuevo usuario';
+  document.getElementById('u-name').value = '';
+  document.getElementById('u-email').value = '';
+  document.getElementById('u-pass').value = '';
+  document.getElementById('u-role').value = 'usuario';
+  document.getElementById('u-status').value = 'activo';
+  openModal('modal-user');
+}
+
+function editUser(id) {
+  const u = state.users.find(x => x.id === id);
+  state.editingUser = id;
+  document.getElementById('user-modal-title').textContent = 'Editar usuario';
+  document.getElementById('u-name').value = u.name;
+  document.getElementById('u-email').value = u.email;
+  document.getElementById('u-pass').value = '';
+  document.getElementById('u-role').value = u.role;
+  document.getElementById('u-status').value = u.status;
+  openModal('modal-user');
+}
+
+function saveUser() {
+  const name = document.getElementById('u-name').value.trim();
+  const email = document.getElementById('u-email').value.trim();
+  const pass = document.getElementById('u-pass').value;
+  const role = document.getElementById('u-role').value;
+  const status = document.getElementById('u-status').value;
+  if (!name || !email) { toast('Nombre y correo son obligatorios', true); return; }
+
+  if (state.editingUser) {
+    const u = state.users.find(x => x.id === state.editingUser);
+    u.name = name; u.email = email; u.role = role; u.status = status;
+    if (pass) u.pass = btoa(pass);
+    addAudit('UPDATE', `Actualización usuario: ${name}`);
+    toast('Usuario actualizado');
+    if (state.editingUser === state.currentUser.id) {
+      state.currentUser = u;
+      setupUI();
+    }
+  } else {
+    if (!pass) { toast('La contraseña es obligatoria', true); return; }
+    const exists = state.users.find(x => x.email === email);
+    if (exists) { toast('Ya existe un usuario con ese correo', true); return; }
+    state.users.push({ id: state.nextId.user++, name, email, pass: btoa(pass), role, status, lastLogin: null });
+    addAudit('CREATE', `Nuevo usuario: ${name}`);
+    toast('Usuario creado');
+  }
+  closeModal('modal-user');
+  renderUsers();
+}
+
+function deleteUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!confirm(`¿Eliminar al usuario "${u.name}"?`)) return;
+  state.users = state.users.filter(x => x.id !== id);
+  addAudit('DELETE', `Eliminación usuario: ${u.name}`);
+  toast('Usuario eliminado');
+  renderUsers();
+}
+
+// ══════════════════════════════════════════════
+//  AUDIT
+// ══════════════════════════════════════════════
+function renderAudit() {
+  const q = (document.getElementById('audit-search')?.value || '').toLowerCase();
+  const type = document.getElementById('audit-filter')?.value || '';
+  let logs = [...state.audit].reverse().filter(a => {
+    const matchQ = !q || a.user.toLowerCase().includes(q) || a.detail.toLowerCase().includes(q);
+    const matchT = !type || a.action === type;
+    return matchQ && matchT;
+  });
+  const tbody = document.getElementById('audit-tbody');
+  tbody.innerHTML = logs.map(a => `<tr class="audit-row">
+    <td>${fmtDate(a.ts)}</td>
+    <td>${a.user}</td>
+    <td><span class="action-pill action-${a.action.toLowerCase()}">${a.action}</span></td>
+    <td style="color:var(--text2)">${a.detail}</td>
+    <td style="color:var(--text3)">${a.ip}</td>
+  </tr>`).join('') || '<tr><td colspan="5"><div class="empty-state"><p>No hay registros</p></div></td></tr>';
+}
+
+function addAudit(action, detail) {
+  const ips = ['192.168.1.10','192.168.1.22','10.0.0.5','172.16.0.8'];
+  state.audit.push({
+    id: state.nextId.audit++,
+    ts: new Date().toISOString(),
+    user: state.currentUser?.name || 'Sistema',
+    action, detail,
+    ip: ips[Math.floor(Math.random() * ips.length)]
+  });
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function getCatName(id) {
+  const c = state.categories.find(x => x.id === id);
+  return c ? c.name : 'Sin categoría';
+}
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' }) +
+    ' ' + d.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+}
+
+function populateCatSelects() {
+  const opts = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const upCat = document.getElementById('up-cat');
+  const filterCat = document.getElementById('doc-filter-cat');
+  if (upCat) upCat.innerHTML = opts;
+  if (filterCat) filterCat.innerHTML = `<option value="">Todas las categorías</option>` + opts;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function toast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--danger)' : 'var(--text)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
